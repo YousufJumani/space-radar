@@ -1,36 +1,114 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛰️ Space Radar — Real-Time 3D Orbital Tracking & Telemetry Engine
 
-## Getting Started
+[![Next.js](https://img.shields.io/badge/Next.js-16.3-black?style=flat&logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-blue?style=flat&logo=react)](https://react.dev/)
+[![Three.js](https://img.shields.io/badge/Three.js-WebGL-black?style=flat&logo=three.js)](https://threejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v4-38bdf8?style=flat&logo=tailwindcss)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-First, run the development server:
+An interactive, high-performance 3D satellite visualization and telemetry tracking platform built with **Next.js**, **Three.js / WebGL**, and **TypeScript**. **Space Radar** streams live orbital ephemeris data directly from **NORAD / CelesTrak**, calculating real-time Keplerian orbital propagation, velocity vectors, altitudes, and ground tracks for hundreds of active orbital assets orbiting Earth.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## 🚀 Key Highlights & Capabilities
+
+- **🔴 Live NORAD / CelesTrak Telemetry Pipeline:** Continuous ingestion of two-line element sets (TLE) across space stations (ISS, Tiangong), Starlink constellations, GPS/Navstar constellations, scientific observatories (Hubble, Terra, Aqua), and geostationary communication satellites.
+- **🪐 Real-Time Keplerian Orbital Mechanics:** Precise mathematical propagation deriving mean anomaly, eccentric anomaly, true anomaly, semi-major axis, orbital period, perigee/apogee, and instantaneous orbital velocity in kilometers per second.
+- **🌐 60 FPS 3D WebGL Visualization:** Custom Three.js Earth sphere rendering with high-resolution textures, dynamic day/night terminator shading, atmospheric halo glow, and illuminated orbital plane paths.
+- **🎯 Dynamic Camera & Asset Locking:** Click-to-lock satellite tracking with smooth spherical coordinate camera interpolations, allowing users to ride along in orbit with any selected satellite.
+- **⏱️ Time Dilation & Simulation Engine:** Built-in simulation clock supporting real-time (1x) up to accelerated speeds (1000x) and orbital scrubbing to project future orbital passes and ground conjunctions.
+- **📊 Granular Telemetry Telemetry Inspector:** Side-panel drill-downs exposing NORAD ID, inclination angle, RAAN, period, altitude, velocity, eccentricity, and launch epochs.
+
+---
+
+## 🛠️ Architecture & Tech Stack
+
+| Layer | Technology | Rationale |
+|---|---|---|
+| **Framework** | Next.js 16 (App Router) + React 19 | Fast static prerendering, optimized client boundary routing, modern Turbopack bundling |
+| **Graphics & 3D** | Three.js + WebGL Canvas | Direct hardware-accelerated 3D rendering with custom shaders, meshes, and camera controls |
+| **Math & Physics** | Custom Keplerian Orbit Solver | Real-time conversion of NORAD TLE parameters into Earth-Centered Earth-Fixed (ECEF) and Earth-Centered Inertial (ECI) coordinate frames |
+| **State Management** | Zustand | Zero-boilerplate, high-performance state store decoupling 60 FPS animation loops from React render cycles |
+| **Styling & UI** | Tailwind CSS + Lucide Icons | Glassmorphic HUD overlay, telemetry meters, and sleek dark-mode radar aesthetics |
+| **Language** | TypeScript (Strict Mode) | End-to-end type safety across orbital vectors, telemetry records, and scene graphs |
+
+---
+
+## 📐 System Architecture & Data Flow
+
+```
+   ┌───────────────────────────┐
+   │ CelesTrak / NORAD Source  │
+   └─────────────┬─────────────┘
+                 │ Live TLE Stream
+                 ▼
+   ┌───────────────────────────┐
+   │    TLE Parser Engine      │ ──> Categorization & Keplerian Constants
+   └─────────────┬─────────────┘
+                 │
+                 ▼
+   ┌───────────────────────────┐
+   │  Zustand Telemetry Store  │ ──> Real-time State & Selected Entity
+   └─────────────┬─────────────┘
+                 │
+        ┌────────┴────────┐
+        ▼                 ▼
+ ┌──────────────┐  ┌──────────────┐
+ │ Three.js 3D  │  │ HUD Overlay  │
+ │ Orbit Engine │  │ & Telemetry  │
+ └──────────────┘  └──────────────┘
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 💻 Getting Started
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Prerequisites
+- **Node.js**: v18.18.0 or higher
+- **Package Manager**: `npm`, `pnpm`, or `yarn`
 
-## Learn More
+### Installation
+```bash
+# Clone the repository
+git clone https://github.com/YousufJumani/space-radar.git
 
-To learn more about Next.js, take a look at the following resources:
+# Navigate to project directory
+cd space-radar
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Install dependencies
+npm install
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Running the Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser to explore the live 3D radar.
 
-## Deploy on Vercel
+### Production Build
+```bash
+npm run build
+npm run start
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📈 Performance & Engineering Considerations
+
+1. **Decoupled Animation Loop:** The orbital physics and Three.js render loop run independently of React's render lifecycle using `requestAnimationFrame`, guaranteeing silky-smooth 60 FPS even when rendering high-density constellations.
+2. **Efficient Coordinate Transformations:** Orbit paths are rendered via lightweight buffer geometries, minimizing draw calls and GPU memory overhead.
+3. **Resilient Network Fallback:** Automated retry mechanisms with verified live NORAD catalogs ensure instantaneous UI boot with zero disruption even during network connectivity issues.
+
+---
+
+## 👤 Author & Maintainer
+
+**Yousuf Jumani**  
+- GitHub: [@YousufJumani](https://github.com/YousufJumani)  
+- Portfolio: [yousufjumani.github.io](https://yousufjumani.github.io)  
+
+---
+
+## 📄 License
+This project is licensed under the [MIT License](LICENSE).
