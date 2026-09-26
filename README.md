@@ -14,11 +14,14 @@ An interactive, high-performance 3D satellite visualization and telemetry tracki
 ## 🚀 Key Highlights & Capabilities
 
 - **🔴 Live NORAD / CelesTrak Telemetry Pipeline:** Continuous ingestion of two-line element sets (TLE) across space stations (ISS, Tiangong), Starlink constellations, GPS/Navstar constellations, scientific observatories (Hubble, Terra, Aqua), and geostationary communication satellites.
+- **✨ Intelligent Live Density Control (Curated vs 11k Swarm):** Smart decluttering architecture that displays a pristine, curated live view (~400 major orbital assets and representative constellation planes) by default, alongside a 1-click toggle to unlock the full 11,000+ satellite swarm rendered as a luminous stellar particle cloud.
+- **🛰️ Interactive Constellation Isolation:** Dedicated sidebar filtering allowing users to isolate specific satellite constellations (ISS, GPS, Starlink, Weather, Scientific, Comms) with real-time orbital geometry highlights.
 - **🪐 Real-Time Keplerian Orbital Mechanics:** Precise mathematical propagation deriving mean anomaly, eccentric anomaly, true anomaly, semi-major axis, orbital period, perigee/apogee, and instantaneous orbital velocity in kilometers per second.
 - **🌐 60 FPS 3D WebGL Visualization:** Custom Three.js Earth sphere rendering with high-resolution textures, dynamic day/night terminator shading, atmospheric halo glow, and illuminated orbital plane paths.
 - **🎯 Dynamic Camera & Asset Locking:** Click-to-lock satellite tracking with smooth spherical coordinate camera interpolations, allowing users to ride along in orbit with any selected satellite.
 - **⏱️ Time Dilation & Simulation Engine:** Built-in simulation clock supporting real-time (1x) up to accelerated speeds (1000x) and orbital scrubbing to project future orbital passes and ground conjunctions.
 - **📊 Granular Telemetry Telemetry Inspector:** Side-panel drill-downs exposing NORAD ID, inclination angle, RAAN, period, altitude, velocity, eccentricity, and launch epochs.
+- **🔍 Full Live Catalog Search:** Instant query across all 11,000+ satellites by name or NORAD catalog ID with immediate camera lock and orbital path propagation.
 
 ---
 

@@ -13,23 +13,23 @@ const CATEGORIES = ['ISS', 'Starlink', 'GPS', 'Weather', 'Communication', 'Scien
 type Cat = typeof CATEGORIES[number];
 
 const COLORS: Record<Cat, string> = {
-  ISS: '#9dffff',
-  Starlink: '#d6f6ff',
-  GPS: '#ffd479',
-  Weather: '#b4f5b4',
-  Communication: '#ff9dd6',
-  Scientific: '#c0a8ff',
-  Other: '#b8c4d0',
+  ISS: '#00f2fe',
+  Starlink: '#8ec5dc',
+  GPS: '#ffc837',
+  Weather: '#4eed94',
+  Communication: '#ff70a6',
+  Scientific: '#b983ff',
+  Other: '#a0aec0',
 };
 
-const SIZES: Record<Cat, number> = {
-  ISS: 0.032,
-  Starlink: 0.013,
-  GPS: 0.020,
-  Weather: 0.018,
-  Communication: 0.018,
-  Scientific: 0.018,
-  Other: 0.011,
+const SIZES: Record<Cat, { curated: number; dense: number }> = {
+  ISS: { curated: 0.038, dense: 0.035 },
+  Starlink: { curated: 0.0075, dense: 0.0035 },
+  GPS: { curated: 0.022, dense: 0.016 },
+  Weather: { curated: 0.020, dense: 0.014 },
+  Communication: { curated: 0.018, dense: 0.012 },
+  Scientific: { curated: 0.022, dense: 0.016 },
+  Other: { curated: 0.010, dense: 0.004 },
 };
 
 export default function SatelliteLayer() {
@@ -38,6 +38,8 @@ export default function SatelliteLayer() {
   const select = useSpaceStore((s) => s.select);
   const live = useSpaceStore((s) => s.live);
   const timeScale = useSpaceStore((s) => s.timeScale);
+  const activeCategory = useSpaceStore((s) => s.activeCategory);
+  const viewDensity = useSpaceStore((s) => s.viewDensity);
 
   const grouped = useMemo(() => {
     const groups: Record<Cat, typeof satellites> = {
@@ -50,15 +52,76 @@ export default function SatelliteLayer() {
       Other: [],
     };
 
-    for (const satellite of satellites) {
-      const category = (CATEGORIES as readonly string[]).includes(satellite.category)
-        ? (satellite.category as Cat)
-        : 'Other';
-      groups[category].push(satellite);
+    // Filter by active category if not 'all'
+    const pool = satellites.filter((sat) => {
+      if (activeCategory === 'all') return true;
+      return sat.category === activeCategory || sat.id === selectedId;
+    });
+
+    if (viewDensity === 'dense') {
+      for (const satellite of pool) {
+        const cat = (CATEGORIES as readonly string[]).includes(satellite.category)
+          ? (satellite.category as Cat)
+          : 'Other';
+        groups[cat].push(satellite);
+      }
+      return groups;
+    }
+
+    // Curated Live Mode: Intelligently sample mega-constellations so the view is clean and beautiful
+    // Retain 100% of Space Stations, GPS, Weather, and Scientific.
+    const starlinkPool: typeof satellites = [];
+    const commPool: typeof satellites = [];
+    const otherPool: typeof satellites = [];
+
+    for (const sat of pool) {
+      if (sat.id === selectedId) {
+        const cat = (CATEGORIES as readonly string[]).includes(sat.category)
+          ? (sat.category as Cat)
+          : 'Other';
+        groups[cat].push(sat);
+        continue;
+      }
+
+      if (
+        sat.category === 'ISS' ||
+        sat.category === 'GPS' ||
+        sat.category === 'Weather' ||
+        sat.category === 'Scientific'
+      ) {
+        groups[sat.category as Cat].push(sat);
+      } else if (sat.category === 'Starlink') {
+        starlinkPool.push(sat);
+      } else if (sat.category === 'Communication') {
+        commPool.push(sat);
+      } else {
+        otherPool.push(sat);
+      }
+    }
+
+    // Sample Starlink evenly: ~70 when in all view, or ~180 when specifically viewing Starlink category
+    const targetStarlink = activeCategory === 'Starlink' ? 180 : 70;
+    const starlinkStep = Math.max(1, Math.floor(starlinkPool.length / targetStarlink));
+    for (let i = 0; i < starlinkPool.length && groups.Starlink.length < targetStarlink; i += starlinkStep) {
+      groups.Starlink.push(starlinkPool[i]);
+    }
+
+    // Sample Comms: up to 90
+    const targetComm = 90;
+    const commStep = Math.max(1, Math.floor(commPool.length / targetComm));
+    for (let i = 0; i < commPool.length && groups.Communication.length < targetComm; i += commStep) {
+      groups.Communication.push(commPool[i]);
+    }
+
+    // Sample Other: up to 30
+    const targetOther = 30;
+    const otherStep = Math.max(1, Math.floor(otherPool.length / targetOther));
+    for (let i = 0; i < otherPool.length && groups.Other.length < targetOther; i += otherStep) {
+      groups.Other.push(otherPool[i]);
     }
 
     return groups;
-  }, [satellites]);
+  }, [satellites, activeCategory, viewDensity, selectedId]);
 
   const refs = useRef<Record<Cat, THREE.InstancedMesh | null>>({
     ISS: null,
@@ -81,12 +144,12 @@ export default function SatelliteLayer() {
       const list = grouped[category];
       if (!mesh || list.length === 0) continue;
 
-      const base = SIZES[category];
+      const base = SIZES[category][viewDensity];
       for (let i = 0; i < list.length; i++) {
         const satellite = list[i];
         dummy.position.copy(propagate(satellite, t));
         const isSelected = satellite.id === selectedId;
-        dummy.scale.setScalar(isSelected ? base * 2.2 : base);
+        dummy.scale.setScalar(isSelected ? base * 2.3 : base);
         dummy.updateMatrix();
         mesh.setMatrixAt(i, dummy.matrix);
       }
@@ -108,9 +171,18 @@ export default function SatelliteLayer() {
       {CATEGORIES.map((category) => {
         const list = grouped[category];
         const count = Math.max(list.length, 1);
+        const isStarlink = category === 'Starlink';
+        const isOther = category === 'Other';
+        const opacity =
+          viewDensity === 'dense' && (isStarlink || isOther)
+            ? 0.35
+            : isStarlink
+              ? 0.75
+              : 0.95;
+
         return (
           <instancedMesh
-            key={category}
+            key={`${category}-${viewDensity}-${activeCategory}`}
             ref={(mesh) => {
               refs.current[category] = mesh;
             }}
@@ -120,7 +192,12 @@ export default function SatelliteLayer() {
             onPointerOut={() => (document.body.style.cursor = 'auto')}
           >
             <sphereGeometry args={[1, 8, 8]} />
-            <meshBasicMaterial color={COLORS[category]} toneMapped={false} />
+            <meshBasicMaterial
+              color={COLORS[category]}
+              toneMapped={false}
+              transparent
+              opacity={opacity}
+            />
           </instancedMesh>
         );
       })}

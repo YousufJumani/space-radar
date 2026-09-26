@@ -25,6 +25,10 @@ export default function Sidebar({
   const satellites = useSpaceStore((s) => s.satellites);
   const select = useSpaceStore((s) => s.select);
   const selectedId = useSpaceStore((s) => s.selectedId);
+  const activeCategory = useSpaceStore((s) => s.activeCategory);
+  const setActiveCategory = useSpaceStore((s) => s.setActiveCategory);
+  const viewDensity = useSpaceStore((s) => s.viewDensity);
+  const setViewDensity = useSpaceStore((s) => s.setViewDensity);
 
   const counts = useMemo(() => {
     const countMap: Record<string, number> = { all: satellites.length };
@@ -34,10 +38,16 @@ export default function Sidebar({
     return countMap;
   }, [satellites]);
 
-  const jumpTo = (category?: SatelliteCategory) => {
-    if (!category) return;
-    const first = satellites.find((satellite) => satellite.category === category);
-    if (first) select(first.id);
+  const handleCategoryClick = (key: string, cat?: SatelliteCategory) => {
+    if (activeCategory === key) {
+      setActiveCategory('all');
+    } else {
+      setActiveCategory(key);
+      if (cat) {
+        const first = satellites.find((s) => s.category === cat);
+        if (first && !selectedId) select(first.id);
+      }
+    }
     if (typeof window !== 'undefined' && window.innerWidth < 768) setOpen(false);
   };
 
@@ -59,7 +69,7 @@ export default function Sidebar({
         } md:translate-x-0`}
       >
         <div className="flex h-10 items-center justify-between border-b border-cyan-500/10 px-4">
-          <span className="text-[10px] tracking-[0.3em] text-cyan-500/70">OBJECTS</span>
+          <span className="text-[10px] tracking-[0.3em] text-cyan-500/70">CATALOG</span>
           <button
             className="text-cyan-500/60 hover:text-cyan-300 md:hidden"
             onClick={() => setOpen(false)}
@@ -69,25 +79,87 @@ export default function Sidebar({
           </button>
         </div>
 
-        <div className="h-[calc(100%-2.5rem)] overflow-y-auto pb-6">
+        {/* Density Mode Selector */}
+        <div className="border-b border-cyan-500/10 p-3">
+          <div className="mb-2 text-[9px] tracking-[0.25em] text-cyan-500/60">DENSITY MODE</div>
+          <div className="grid grid-cols-2 gap-1.5 font-mono text-[10px]">
+            <button
+              onClick={() => setViewDensity('curated')}
+              className={`rounded px-2 py-1.5 transition ${
+                viewDensity === 'curated'
+                  ? 'border border-cyan-400/70 bg-cyan-500/25 text-cyan-200 shadow-[0_0_8px_rgba(0,220,255,0.2)]'
+                  : 'border border-transparent text-white/50 hover:bg-white/5 hover:text-white'
+              }`}
+            >
+              ✦ Curated
+            </button>
+            <button
+              onClick={() => setViewDensity('dense')}
+              className={`rounded px-2 py-1.5 transition ${
+                viewDensity === 'dense'
+                  ? 'border border-cyan-400/70 bg-cyan-500/25 text-cyan-200 shadow-[0_0_8px_rgba(0,220,255,0.2)]'
+                  : 'border border-transparent text-white/50 hover:bg-white/5 hover:text-white'
+              }`}
+            >
+              ⚡ All 11k
+            </button>
+          </div>
+        </div>
+
+        {/* Categories List */}
+        <div className="h-[calc(100%-7.5rem)] overflow-y-auto pb-6">
+          <div className="px-4 py-2 text-[9px] tracking-[0.25em] text-cyan-500/50">FILTER BY CONSTELLATION</div>
           {FILTERS.map((filter) => {
             const count = counts[filter.key] ?? 0;
+            const isActive = activeCategory === filter.key;
             return (
               <button
                 key={filter.key}
-                onClick={() => jumpTo(filter.cat)}
-                className="group flex w-full items-center justify-between border-l-2 border-transparent px-4 py-2.5 text-left transition hover:border-cyan-400/60 hover:bg-cyan-500/10"
+                onClick={() => handleCategoryClick(filter.key, filter.cat)}
+                className={`group flex w-full items-center justify-between border-l-2 px-4 py-2 text-left transition ${
+                  isActive
+                    ? 'border-cyan-400 bg-cyan-500/20 text-white shadow-[inset_4px_0_12px_rgba(0,200,255,0.15)]'
+                    : 'border-transparent hover:border-cyan-400/50 hover:bg-cyan-500/10'
+                }`}
               >
-                <span className="text-xs tracking-wide text-white/80 group-hover:text-white">{filter.label}</span>
-                <span className="font-mono text-[10px] text-cyan-400/70 group-hover:text-cyan-300">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${
+                      isActive ? 'bg-cyan-300' : 'bg-white/20 group-hover:bg-cyan-400/60'
+                    }`}
+                  />
+                  <span
+                    className={`text-xs tracking-wide ${
+                      isActive ? 'font-medium text-white' : 'text-white/80 group-hover:text-white'
+                    }`}
+                  >
+                    {filter.label}
+                  </span>
+                </div>
+                <span
+                  className={`font-mono text-[10px] ${
+                    isActive ? 'text-cyan-200' : 'text-cyan-400/60 group-hover:text-cyan-300'
+                  }`}
+                >
                   {count.toLocaleString()}
                 </span>
               </button>
             );
           })}
 
+          {activeCategory !== 'all' && (
+            <div className="px-4 pt-3">
+              <button
+                onClick={() => setActiveCategory('all')}
+                className="w-full rounded border border-cyan-500/30 bg-cyan-500/10 py-1.5 text-center font-mono text-[10px] tracking-wider text-cyan-300 hover:bg-cyan-500/20"
+              >
+                SHOW ALL OBJECTS
+              </button>
+            </div>
+          )}
+
           {selectedId && (
-            <div className="px-4 pt-6">
+            <div className="px-4 pt-5">
               <div className="mb-1 text-[9px] tracking-[0.3em] text-cyan-500/50">TRACKING</div>
               <div className="truncate font-mono text-[10px] text-cyan-300">#{selectedId}</div>
             </div>

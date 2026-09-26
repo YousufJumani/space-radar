@@ -1,6 +1,7 @@
 'use client';
 
-import { Radio, Route, Moon, Crosshair, RotateCcw, Shuffle } from 'lucide-react';
+import { Radio, Route, Moon, Crosshair, RotateCcw, Shuffle, Sparkles, X } from 'lucide-react';
+import { useMemo } from 'react';
 import { useSpaceStore } from '@/lib/space/store';
 
 const SPEEDS = [0.5, 1, 2, 5, 10];
@@ -13,6 +14,10 @@ export default function Controls() {
   const selectedId = useSpaceStore((s) => s.selectedId);
   const timeScale = useSpaceStore((s) => s.timeScale);
   const satellites = useSpaceStore((s) => s.satellites);
+  const activeCategory = useSpaceStore((s) => s.activeCategory);
+  const setActiveCategory = useSpaceStore((s) => s.setActiveCategory);
+  const viewDensity = useSpaceStore((s) => s.viewDensity);
+  const setViewDensity = useSpaceStore((s) => s.setViewDensity);
 
   const toggle = useSpaceStore((s) => s.toggle);
   const setFollow = useSpaceStore((s) => s.setFollow);
@@ -20,9 +25,26 @@ export default function Controls() {
   const select = useSpaceStore((s) => s.select);
   const triggerReset = useSpaceStore((s) => s.triggerReset);
 
+  const visibleCount = useMemo(() => {
+    if (activeCategory !== 'all') {
+      const catCount = satellites.filter((s) => s.category === activeCategory).length;
+      if (viewDensity === 'curated' && activeCategory === 'Starlink') return Math.min(180, catCount);
+      return catCount;
+    }
+    if (viewDensity === 'curated') {
+      let nonStarlink = 0;
+      for (const s of satellites) {
+        if (s.category !== 'Starlink') nonStarlink++;
+      }
+      return Math.min(satellites.length, nonStarlink + Math.min(70, satellites.filter((s) => s.category === 'Starlink').length));
+    }
+    return satellites.length;
+  }, [satellites, activeCategory, viewDensity]);
+
   const surprise = () => {
     if (satellites.length === 0) return;
-    const pick = satellites[Math.floor(Math.random() * satellites.length)];
+    const pool = activeCategory === 'all' ? satellites : satellites.filter((s) => s.category === activeCategory);
+    const pick = pool[Math.floor(Math.random() * pool.length)] || satellites[0];
     select(pick.id);
     setFollow(pick.id);
   };
@@ -49,6 +71,13 @@ export default function Controls() {
         >
           <Crosshair size={11} /> FOLLOW
         </ControlButton>
+        <ControlButton
+          active={viewDensity === 'curated'}
+          onClick={() => setViewDensity(viewDensity === 'curated' ? 'dense' : 'curated')}
+          title="Toggle Curated (Clean View) vs All 11k Swarm"
+        >
+          <Sparkles size={11} /> {viewDensity === 'curated' ? 'CURATED' : '11K SWARM'}
+        </ControlButton>
         <ControlButton onClick={triggerReset} title="Reset view">
           <RotateCcw size={11} /> RESET
         </ControlButton>
@@ -56,9 +85,24 @@ export default function Controls() {
           <Shuffle size={11} /> SURPRISE
         </ControlButton>
 
+        {activeCategory !== 'all' && (
+          <button
+            onClick={() => setActiveCategory('all')}
+            title="Click to show all constellations"
+            className="flex items-center gap-1 rounded-sm border border-cyan-400/60 bg-cyan-500/25 px-2 py-1 text-[10px] tracking-widest text-cyan-200 transition hover:bg-cyan-500/40"
+          >
+            <span>{activeCategory.toUpperCase()}</span>
+            <X size={10} />
+          </button>
+        )}
+
         <div className="ml-auto flex items-center gap-4 pl-3">
           <div className="hidden text-[10px] tracking-widest text-white/50 sm:block">
-            OBJECTS <span className="font-mono text-cyan-300">{satellites.length.toLocaleString()}</span>
+            OBJECTS{' '}
+            <span className="font-mono text-cyan-300">{visibleCount.toLocaleString()}</span>
+            {visibleCount < satellites.length && (
+              <span className="font-mono text-white/30"> / {satellites.length.toLocaleString()}</span>
+            )}
           </div>
           <div className="flex items-center gap-0.5">
             <span className="mr-1 hidden text-[10px] tracking-widest text-white/50 md:inline">SPEED</span>
