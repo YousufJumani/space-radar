@@ -35,10 +35,10 @@ export default function Page() {
   }, [setSatellites]);
 
   return (
-    <main className="relative h-screen w-full overflow-hidden bg-[#000308]">
+    <main className="relative h-dvh min-h-dvh w-full overflow-hidden select-none bg-[#000308]">
       <SpaceScene />
       <StatusBar />
-      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+      <Sidebar />
       <SatellitePanel />
       <Controls />
       <LoadingScreen done={ready} />

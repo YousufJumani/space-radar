@@ -16,12 +16,17 @@ const FILTERS: Array<{ key: string; label: string; cat?: SatelliteCategory }> = 
 ];
 
 export default function Sidebar({
-  open,
-  setOpen,
+  open: propOpen,
+  setOpen: propSetOpen,
 }: {
-  open: boolean;
-  setOpen: (value: boolean) => void;
-}) {
+  open?: boolean;
+  setOpen?: (value: boolean) => void;
+} = {}) {
+  const storeOpen = useSpaceStore((s) => s.sidebarOpen);
+  const storeSetOpen = useSpaceStore((s) => s.setSidebarOpen);
+  const open = propOpen !== undefined ? propOpen : storeOpen;
+  const setOpen = propSetOpen || storeSetOpen;
+
   const satellites = useSpaceStore((s) => s.satellites);
   const select = useSpaceStore((s) => s.select);
   const selectedId = useSpaceStore((s) => s.selectedId);
@@ -53,29 +58,40 @@ export default function Sidebar({
 
   return (
     <>
+      {/* Mobile backdrop overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 z-30 bg-black/70 backdrop-blur-sm md:hidden transition-opacity"
+          onClick={() => setOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Floating trigger on mobile when closed */}
       <button
         onClick={() => setOpen(!open)}
-        className={`absolute left-4 top-[4.5rem] z-30 rounded-sm border border-cyan-500/30 bg-black/60 p-2 text-cyan-400 transition-opacity md:hidden ${
+        className={`absolute left-3 top-16 z-20 flex items-center gap-1.5 rounded-full border border-cyan-500/40 bg-black/80 px-3 py-1.5 text-cyan-300 shadow-[0_0_12px_rgba(0,200,255,0.2)] backdrop-blur md:hidden active:scale-95 transition ${
           open ? 'pointer-events-none opacity-0' : 'opacity-100'
         }`}
-        aria-label="Open objects"
+        aria-label="Open Constellations"
       >
-        <Layers size={14} />
+        <Layers size={13} />
+        <span className="text-[10px] font-mono tracking-widest">CONSTELLATIONS</span>
       </button>
 
       <aside
-        className={`absolute bottom-14 left-0 top-14 z-20 w-56 border-r border-cyan-500/15 bg-black/55 backdrop-blur-md transition-transform duration-300 ${
+        className={`fixed md:absolute bottom-0 md:bottom-14 left-0 top-14 z-40 md:z-20 w-72 max-w-[85vw] md:w-60 border-r border-cyan-500/15 bg-black/90 md:bg-black/60 backdrop-blur-xl transition-transform duration-300 shadow-2xl ${
           open ? 'translate-x-0' : '-translate-x-full'
-        } md:translate-x-0`}
+        }`}
       >
-        <div className="flex h-10 items-center justify-between border-b border-cyan-500/10 px-4">
-          <span className="text-[10px] tracking-[0.3em] text-cyan-500/70">CATALOG</span>
+        <div className="flex h-12 md:h-10 items-center justify-between border-b border-cyan-500/15 px-4">
+          <span className="text-[10px] tracking-[0.3em] font-medium text-cyan-400">ORBITAL CATALOG</span>
           <button
-            className="text-cyan-500/60 hover:text-cyan-300 md:hidden"
+            className="flex h-8 w-8 items-center justify-center rounded text-cyan-400/80 hover:bg-white/10 hover:text-white md:hidden"
             onClick={() => setOpen(false)}
             aria-label="Close"
           >
-            <ChevronLeft size={14} />
+            <ChevronLeft size={18} />
           </button>
         </div>
 

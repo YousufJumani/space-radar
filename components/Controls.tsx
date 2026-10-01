@@ -50,8 +50,8 @@ export default function Controls() {
   };
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 z-20 border-t border-cyan-500/15 bg-black/60 backdrop-blur-md">
-      <div className="flex flex-wrap items-center gap-1.5 px-3 py-2.5">
+    <div className="absolute bottom-0 left-0 right-0 z-20 border-t border-cyan-500/15 bg-black/75 backdrop-blur-md">
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar px-3 py-2 whitespace-nowrap">
         <ControlButton active={live} onClick={() => toggle('live')} title="Live time">
           <Radio size={11} /> LIVE
         </ControlButton>
@@ -89,14 +89,18 @@ export default function Controls() {
           <button
             onClick={() => setActiveCategory('all')}
             title="Click to show all constellations"
-            className="flex items-center gap-1 rounded-sm border border-cyan-400/60 bg-cyan-500/25 px-2 py-1 text-[10px] tracking-widest text-cyan-200 transition hover:bg-cyan-500/40"
+            className="flex shrink-0 items-center gap-1 rounded-sm border border-cyan-400/60 bg-cyan-500/25 px-2 py-1.5 text-[10px] tracking-widest text-cyan-200 transition hover:bg-cyan-500/40 active:scale-95"
           >
             <span>{activeCategory.toUpperCase()}</span>
             <X size={10} />
           </button>
         )}
 
-        <div className="ml-auto flex items-center gap-4 pl-3">
+        <div className="flex sm:hidden font-mono text-[9px] tracking-wider text-cyan-300 border border-cyan-500/20 px-2 py-1 rounded bg-black/40 shrink-0">
+          {visibleCount} SATS
+        </div>
+
+        <div className="ml-auto flex shrink-0 items-center gap-3 pl-3">
           <div className="hidden text-[10px] tracking-widest text-white/50 sm:block">
             OBJECTS{' '}
             <span className="font-mono text-cyan-300">{visibleCount.toLocaleString()}</span>
@@ -110,7 +114,7 @@ export default function Controls() {
               <button
                 key={speed}
                 onClick={() => setTimeScale(speed)}
-                className={`rounded-sm px-2 py-1 text-[10px] font-mono transition ${
+                className={`rounded-sm px-2 py-1 text-[10px] font-mono transition shrink-0 ${
                   timeScale === speed ? 'bg-cyan-500/25 text-cyan-200' : 'text-white/50 hover:text-white'
                 }`}
               >
@@ -139,7 +143,7 @@ function ControlButton({
     <button
       onClick={onClick}
       title={title}
-      className={`flex items-center gap-1.5 rounded-sm border px-2.5 py-1.5 text-[10px] tracking-widest transition ${
+      className={`flex shrink-0 min-h-[32px] items-center gap-1.5 rounded-sm border px-2.5 py-1.5 text-[10px] tracking-widest transition active:scale-95 ${
         active
           ? 'border-cyan-400/70 bg-cyan-500/20 text-cyan-300 shadow-[0_0_10px_rgba(0,200,255,0.25)]'
           : 'border-white/10 text-white/60 hover:border-cyan-500/40 hover:text-white'

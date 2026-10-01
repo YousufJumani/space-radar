@@ -13,15 +13,17 @@ interface SpaceState {
   timeScale: number;
   activeCategory: string;
   viewDensity: 'curated' | 'dense';
+  sidebarOpen: boolean;
 
   setSatellites: (satellites: Satellite[], source: 'live') => void;
   select: (id: string | null) => void;
   setFollow: (id: string | null) => void;
   triggerReset: () => void;
-  toggle: (key: 'showOrbits' | 'nightMode' | 'live') => void;
+  toggle: (key: 'showOrbits' | 'nightMode' | 'live' | 'sidebarOpen') => void;
   setTimeScale: (value: number) => void;
   setActiveCategory: (category: string) => void;
   setViewDensity: (density: 'curated' | 'dense') => void;
+  setSidebarOpen: (open: boolean) => void;
 }
 
 export const useSpaceStore = create<SpaceState>((set) => ({
@@ -36,6 +38,7 @@ export const useSpaceStore = create<SpaceState>((set) => ({
   timeScale: 1,
   activeCategory: 'all',
   viewDensity: 'curated',
+  sidebarOpen: false,
 
   setSatellites: (satellites, dataSource) => set({ satellites, dataSource }),
   select: (selectedId) => set({ selectedId }),
@@ -50,4 +53,5 @@ export const useSpaceStore = create<SpaceState>((set) => ({
   setTimeScale: (timeScale) => set({ timeScale }),
   setActiveCategory: (activeCategory) => set({ activeCategory }),
   setViewDensity: (viewDensity) => set({ viewDensity }),
+  setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
 }));

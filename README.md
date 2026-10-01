@@ -21,6 +21,7 @@ An interactive, high-performance 3D satellite visualization and telemetry tracki
 - **🎯 Dynamic Camera & Asset Locking:** Click-to-lock satellite tracking with smooth spherical coordinate camera interpolations, allowing users to ride along in orbit with any selected satellite.
 - **⏱️ Time Dilation & Simulation Engine:** Built-in simulation clock supporting real-time (1x) up to accelerated speeds (1000x) and orbital scrubbing to project future orbital passes and ground conjunctions.
 - **📊 Granular Telemetry Telemetry Inspector:** Side-panel drill-downs exposing NORAD ID, inclination angle, RAAN, period, altitude, velocity, eccentricity, and launch epochs.
+- **📱 Mobile-First Responsive HUD:** Fully optimized touch experience featuring dynamic viewport height (dvh), bottom-docked collapsible telemetry drawer, swipeable zero-wrap aerospace HUD toolbar, mobile backdrop navigation, and native touch gestures (pinch-to-zoom, orbital rotate, single-tap target lock).
 - **🔍 Full Live Catalog Search:** Instant query across all 11,000+ satellites by name or NORAD catalog ID with immediate camera lock and orbital path propagation.
 
 ---
