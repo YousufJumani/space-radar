@@ -1,4 +1,6 @@
 # 🛰️ Space Radar — Real-Time 3D Orbital Tracking & Telemetry Engine
+<img width="1912" height="1296" alt="Untitled design (2)" src="https://github.com/user-attachments/assets/8fe6a457-e6d0-4266-81e7-9b8bae2e7750" />
+
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.3-black?style=flat&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-blue?style=flat&logo=react)](https://react.dev/)
